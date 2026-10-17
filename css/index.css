@@ -4285,7 +4285,7 @@ figure.highlight pre .javascript .function {
 }
 #page-header.full_page {
   height: 100vh;
-  background-attachment: fixed;
+  background-attachment: scroll;
 }
 #page-header.full_page #site-info {
   position: absolute;

@@ -1,0 +1,9 @@
+/* 页脚渐变：上半段纯背景色，下半段渐入粉色（50% 处开始过渡） */
+#footer {
+  background: linear-gradient(
+    180deg,
+    var(--global-bg) 0%,
+    var(--global-bg) 50%,
+    #ff69b4 100%
+  ) !important;
+}
