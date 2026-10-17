@@ -1,4 +1,9 @@
-/* 页脚渐变：上半段纯背景色，下半段渐入粉色（50% 处开始过渡） */
+/* ===== 首页横幅：图片随页面滚动，不再固定在视口 ===== */
+#page-header.full_page {
+  background-attachment: scroll !important;
+}
+
+/* ===== 页脚渐变：上半段纯背景色，下半段渐入粉色（50% 处开始过渡） ===== */
 #footer {
   background: linear-gradient(
     180deg,
