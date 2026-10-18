@@ -1,0 +1,475 @@
+/* =========================================================
+   首页三态整页：封面 → 展示页 → 文章页
+   状态类都挂在 <html> 上：
+     hs-js      桌面端启用（由生成器内联脚本添加；手机/失败时不加）
+     hs-show    展示页态（封面内容飞出、卡片升起、背景变暗）
+     hs-posts   文章页态（展示页 + 背景一起上飞，文章面板升起）
+   层叠（z-index）：
+     50 封面 #page-header       60 导航栏（#nav）
+     40 文章面板 #hs-posts      25 展示页 #hs-showcase
+     20 变暗层 #hs-dim          10 背景图 #hs-bg
+   ========================================================= */
+
+/* 固定层按 100vw 铺满，裁掉可能多出来的横向溢出 */
+html.hs-js {
+  overflow-x: clip;
+}
+
+/* ---------- 封面：主题 header 变固定满屏层 ---------- */
+html.hs-js #page-header.full_page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 50;
+  background: none !important;
+  background-color: transparent !important;
+  pointer-events: none;
+  transition: none;
+}
+/* 关掉主题自带的遮罩，改用 #hs-dim 控制 0 → 1 */
+html.hs-js #page-header.full_page::before {
+  display: none;
+}
+
+/* ---------- 导航栏：钉死在最高层 ---------- */
+html.hs-js #page-header.full_page #nav {
+  position: relative;
+  z-index: 60;
+  pointer-events: auto;
+  background-color: transparent;
+  transition: background-color .35s ease;
+}
+html.hs-show #page-header.full_page #nav {
+  background-color: rgba(8, 8, 10, .38);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* ---------- 封面标题（竖直 25%）/ 副标题（正中）/ 下箭头 ---------- */
+html.hs-js #page-header.full_page #site-info {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  width: 100%;
+  pointer-events: none;
+}
+html.hs-js #page-header.full_page #site-title {
+  position: absolute;
+  left: 0;
+  top: 25%;
+  width: 100%;
+  margin: 0;
+  padding: 0 16px;
+  display: block;
+  overflow: visible;
+  text-align: center;
+  color: #ff69b4;
+  text-shadow: 0 4px 0 rgba(0, 0, 0, .45), 0 10px 24px rgba(0, 0, 0, .45);
+  font-size: clamp(3rem, 5.4vw, 5rem);
+  line-height: 1.2;
+  transform: translateY(-50%);
+  transition: transform .7s cubic-bezier(.65, 0, .35, 1), opacity .7s ease;
+}
+html.hs-js #page-header.full_page #site-subtitle {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  padding: 0 16px;
+  text-align: center;
+  color: #00e6b3;
+  text-shadow: 0 0 8px rgba(0, 230, 179, .8), 0 0 24px rgba(0, 230, 179, .45);
+  font-weight: 700;
+  font-size: clamp(1.15rem, 1.7vw, 1.7rem);
+  letter-spacing: .05em;
+  transform: translateY(-50%);
+  transition: transform .7s cubic-bezier(.65, 0, .35, 1), opacity .7s ease;
+}
+
+/* 打字光标：跟在最后一个字后面闪 */
+#site-subtitle #subtitle::after {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 1.1em;
+  margin-left: 5px;
+  vertical-align: -.14em;
+  border-radius: 1px;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor, 0 0 22px currentColor;
+  animation: hs-caret 1s step-end infinite;
+}
+@keyframes hs-caret {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+html.hs-js #page-header.full_page #scroll-down {
+  pointer-events: auto;
+  z-index: 60;
+  transition: transform .7s cubic-bezier(.65, 0, .35, 1), opacity .7s ease;
+}
+
+/* ---------- 翻页：封面内容向上飞出 ---------- */
+html.hs-show #page-header.full_page #site-title,
+html.hs-show #page-header.full_page #site-subtitle {
+  transform: translateY(calc(-50% - 100vh));
+  opacity: 0;
+}
+html.hs-show #page-header.full_page #scroll-down {
+  transform: translateY(-100vh);
+  opacity: 0;
+}
+
+/* ---------- 背景图（属于展示页那一层，进文章页时一起上飞） ---------- */
+html.hs-js #hs-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+  background: #0d0d0d center / cover no-repeat;
+  pointer-events: none;
+  transition: transform .7s cubic-bezier(.65, 0, .35, 1);
+}
+html.hs-show.hs-posts #hs-bg {
+  transform: translateY(-100%);
+}
+
+/* ---------- 变暗层（亮色 30% / 暗色 60%，跟随主题） ---------- */
+html.hs-js #hs-dim {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 20;
+  background: var(--mark-bg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .7s ease;
+}
+html.hs-show #hs-dim {
+  opacity: 1;
+}
+
+/* ---------- 展示页（头像 / 卡片 / 提示） ---------- */
+html.hs-js #hs-showcase {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 25;
+  transform: translateY(100%);
+  transition: transform .7s cubic-bezier(.65, 0, .35, 1);
+  pointer-events: none;
+  will-change: transform;
+}
+html.hs-show #hs-showcase {
+  transform: translateY(0);
+}
+/* 进入文章页：展示页继续向上飞出 */
+html.hs-show.hs-posts #hs-showcase {
+  transform: translateY(-100%);
+}
+#hs-showcase > * {
+  pointer-events: auto;
+}
+
+#hs-showcase .hs-avatar {
+  position: absolute;
+  left: 50%;
+  top: 25%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  max-width: 70vw;
+  text-align: center;
+  color: #fff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, .6);
+}
+#hs-showcase .hs-avatar-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+#hs-showcase .hs-avatar img {
+  display: block;
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(255, 255, 255, .7);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, .45);
+  transition: transform .3s ease, border-color .3s ease;
+}
+#hs-showcase .hs-avatar-link:hover img {
+  transform: translateY(-3px);
+  border-color: rgba(255, 105, 180, .85);
+}
+#hs-showcase .hs-avatar-name {
+  font-size: 1.2em;
+  font-weight: 600;
+}
+#hs-showcase .hs-avatar-desc {
+  margin-top: 4px;
+  font-size: .85em;
+  opacity: .8;
+}
+#hs-showcase .hs-card {
+  position: absolute;
+  top: var(--hs-y, 50%);
+  transform: translate(-50%, -50%);
+  width: clamp(240px, 26vw, 360px);
+  padding: 18px 20px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 14px;
+  background: rgba(13, 13, 13, .55);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, .35);
+  color: #eee;
+  transition: border-color .3s ease, box-shadow .3s ease;
+}
+#hs-showcase .hs-card--left {
+  left: 25%;
+}
+#hs-showcase .hs-card--right {
+  left: 75%;
+}
+#hs-showcase .hs-card:hover {
+  border-color: rgba(255, 105, 180, .55);
+  box-shadow: 0 14px 44px rgba(255, 105, 180, .2);
+}
+#hs-showcase .hs-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+#hs-showcase .hs-card-head i {
+  color: #ff69b4;
+  font-size: 1.1em;
+}
+#hs-showcase .hs-card-title {
+  margin: 0;
+  font-size: 1.05em;
+  color: #fff;
+}
+#hs-showcase .hs-card-desc {
+  margin: 0 0 10px;
+  font-size: .85em;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, .66);
+}
+#hs-showcase .hs-card-links {
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+#hs-showcase .hs-card-links li {
+  margin: 6px 0;
+  font-size: .82em;
+}
+#hs-showcase .hs-card-links a {
+  color: rgba(255, 255, 255, .8);
+  text-decoration: none;
+  transition: color .25s ease;
+}
+#hs-showcase .hs-card-links a:hover {
+  color: #ff69b4;
+}
+#hs-showcase .hs-link-desc {
+  margin-left: 6px;
+  color: rgba(255, 255, 255, .5);
+}
+#hs-showcase .hs-card-more {
+  display: inline-block;
+  font-size: .82em;
+  color: #ff69b4;
+  text-decoration: none;
+}
+#hs-showcase .hs-card-more:hover {
+  text-decoration: underline;
+}
+#hs-showcase .hs-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 5%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, .75);
+  font-size: .85em;
+  letter-spacing: .08em;
+  white-space: nowrap;
+  text-decoration: none;
+}
+#hs-showcase .hs-hint i {
+  display: inline-block;
+  margin-left: 6px;
+  animation: hs-bounce 1.6s infinite;
+}
+@keyframes hs-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+#hs-showcase a:focus-visible {
+  outline: 2px solid #ff69b4;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ---------- 文章页背景视频（有配置时才注入 #hs-postbg） ---------- */
+html.hs-js #hs-postbg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 35;
+  overflow: hidden;
+  background: #0d0d0d;
+  opacity: 0;
+  transform: translateY(100%);
+  /* 退场用这条：下滑 .7s 与淡出 .7s 并行 */
+  transition: transform .7s cubic-bezier(.65, 0, .35, 1), opacity .7s ease;
+  pointer-events: none;
+}
+/* 进场：升起 .7s，同时淡入 2s（升起落定后继续慢慢变亮） */
+html.hs-posts #hs-postbg {
+  transform: translateY(0);
+  opacity: 1;
+  transition: transform .7s cubic-bezier(.65, 0, .35, 1), opacity 2s ease;
+}
+#hs-postbg video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* 压暗遮罩：保证卡片/文字可读（底部再压一点，和页脚衔接） */
+html.hs-js #hs-postbg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, .52), rgba(0, 0, 0, .28) 42%, rgba(0, 0, 0, .74));
+}
+
+/* ---------- 页脚：首页文章面板里不显示（其它页面不受影响） ---------- */
+html.hs-js #hs-posts #footer {
+  display: none !important;
+}
+
+/* ---------- 文章页：整屏面板 + 面板内滚动（页脚一起装在里面） ---------- */
+html.hs-js #hs-posts {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 40;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: transparent;   /* 背景交给 #hs-postbg（没配视频时露出 body 底色） */
+  transform: translateY(100%);
+  transition: transform .7s cubic-bezier(.65, 0, .35, 1);
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+html.hs-posts #hs-posts {
+  transform: translateY(0);
+}
+
+/* ---------- 文章面板：卡片改毛玻璃 + 文字转浅色（壁纸背景下可读） ---------- */
+html.hs-js #hs-posts {
+  --card-bg: rgba(16, 16, 20, .42);
+  --font-color: rgba(255, 255, 255, .88);
+  --text-highlight-color: #fff;
+  --card-meta: rgba(255, 255, 255, .58);
+  --light-grey: rgba(255, 255, 255, .7);
+  --dark-grey: rgba(255, 255, 255, .5);
+  --text-bg-hover: rgba(255, 255, 255, .08);
+  color: rgba(255, 255, 255, .88);
+}
+html.hs-js #hs-posts .recent-post-item,
+html.hs-js #hs-posts .card-widget {
+  background: rgba(16, 16, 20, .42) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
+  backdrop-filter: blur(16px) saturate(1.15);
+  border: 1px solid rgba(255, 255, 255, .1);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .3);
+}
+html.hs-js #hs-posts .recent-post-item:hover {
+  border-color: rgba(255, 105, 180, .35);
+}
+html.hs-js #hs-posts .recent-post-item a:hover,
+html.hs-js #hs-posts .card-widget a:hover {
+  color: #ff69b4;
+}
+
+/* 整体下移：60px 顶栏 + 32px 间距，别和导航栏叠在一起 */
+html.hs-js #hs-posts #content-inner {
+  padding-top: 92px;
+  /* 文章列表（74%）与右侧竖排挂件（26%）对称向两边撑开：
+     主题原本 max-width 1200，这里加宽到 1400，两侧各外移 100px */
+  max-width: 1400px;
+}
+@media (min-width: 2000px) {
+  html.hs-js #hs-posts #content-inner {
+    max-width: 1600px;
+  }
+}
+
+/* 右侧按钮（明暗切换 / 回顶）：只在文章页显示 */
+html.hs-js #rightside {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease;
+}
+html.hs-posts #rightside {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ---------- 降级：手机端 / JS 未就绪（没有 hs-js）时退回普通页面 ---------- */
+html:not(.hs-js) #hs-bg,
+html:not(.hs-js) #hs-dim {
+  display: none;
+}
+html:not(.hs-js) #hs-showcase {
+  position: static;
+  transform: none;
+  padding: 70px 16px 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+html:not(.hs-js) #hs-showcase .hs-avatar {
+  position: static;
+  transform: none;
+}
+html:not(.hs-js) #hs-showcase .hs-card,
+html:not(.hs-js) #hs-showcase .hs-card--left,
+html:not(.hs-js) #hs-showcase .hs-card--right {
+  position: static;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: 100%;
+  max-width: 420px;
+}
+html:not(.hs-js) #hs-showcase .hs-hint {
+  position: static;
+  transform: none;
+  margin-top: 6px;
+}
+html:not(.hs-js) #hs-posts {
+  position: static;
+  overflow: visible;
+  background: transparent;
+  transform: none;
+}
