@@ -54,6 +54,38 @@
 
   var postVideo = document.getElementById('hs-post-video');
 
+  /* 所有卡片等高：顶边钉在 42%（或 50%）线上，高度统一取最高的那张；
+     顶边上提了多少，就额外补多少高度，底边位置保持不变 */
+  function equalizeCards() {
+    var cards = showcase.querySelectorAll('.hs-card');
+    if (!cards.length) return;
+
+    var i;
+    for (i = 0; i < cards.length; i++) cards[i].style.height = '';
+
+    var max = 0;
+    for (i = 0; i < cards.length; i++) {
+      max = Math.max(max, cards[i].offsetHeight);
+    }
+    if (!max) return;
+
+    var yPct = 50;
+    var style = cards[0].getAttribute('style') || '';
+    var m = style.match(/--hs-y:\s*([\d.]+)%/);
+    if (m) yPct = parseFloat(m[1]);
+    var extra = Math.max(0, (50 - yPct) / 100 * window.innerHeight);
+
+    var target = max + extra;
+    for (i = 0; i < cards.length; i++) cards[i].style.height = target + 'px';
+  }
+
+  window.addEventListener('load', equalizeCards);
+  window.addEventListener('resize', equalizeCards);
+  // 封面图加载完会改变高度，补一次
+  Array.prototype.forEach.call(showcase.querySelectorAll('img'), function (img) {
+    if (!img.complete) img.addEventListener('load', equalizeCards);
+  });
+
   function playPostBg() {
     if (!postVideo) return;
     var p = postVideo.play();
@@ -98,6 +130,7 @@
     root.classList.add('hs-show');
     after(function () {
       state = 'show';
+      equalizeCards();          // 卡片显现后按内容统一高度
       stamp();
     });
   }

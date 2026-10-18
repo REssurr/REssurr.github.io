@@ -212,19 +212,28 @@ html.hs-show.hs-posts #hs-showcase {
   border-color: rgba(255, 105, 180, .85);
 }
 #hs-showcase .hs-avatar-name {
-  font-size: 1.2em;
-  font-weight: 600;
+  font-size: 2.1em;
+  font-weight: 800;
+  color: #ff69b4;
+  letter-spacing: .02em;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, .6);
 }
 #hs-showcase .hs-avatar-desc {
-  margin-top: 4px;
-  font-size: .85em;
-  opacity: .8;
+  margin-top: 8px;
+  font-size: 1.3em;
+  font-weight: 600;
+  color: #00e6b3;
+  opacity: .95;
 }
 #hs-showcase .hs-card {
   position: absolute;
   top: var(--hs-y, 50%);
   transform: translate(-50%, -50%);
-  width: clamp(240px, 26vw, 360px);
+  width: clamp(280px, 30vw, 440px);
+  /* 两卡等高：内容少的靠 min-height 撑开，"我的个人空间"沉到底部 */
+  min-height: clamp(260px, 34vh, 380px);
+  display: flex;
+  flex-direction: column;
   padding: 18px 20px;
   border: 1px solid rgba(255, 255, 255, .12);
   border-radius: 14px;
@@ -240,6 +249,10 @@ html.hs-show.hs-posts #hs-showcase {
 }
 #hs-showcase .hs-card--right {
   left: 75%;
+}
+/* 顶边贴水平平分线（50%），卡片向下延伸 */
+#hs-showcase .hs-card--anchor-top {
+  transform: translate(-50%, 0);
 }
 #hs-showcase .hs-card:hover {
   border-color: rgba(255, 105, 180, .55);
@@ -272,11 +285,12 @@ html.hs-show.hs-posts #hs-showcase {
   list-style: none;
 }
 #hs-showcase .hs-card-links li {
-  margin: 6px 0;
-  font-size: .82em;
+  margin: 8px 0;
+  font-size: 1em;
 }
 #hs-showcase .hs-card-links a {
-  color: rgba(255, 255, 255, .8);
+  color: rgba(255, 255, 255, .88);
+  font-weight: 600;
   text-decoration: none;
   transition: color .25s ease;
 }
@@ -289,12 +303,66 @@ html.hs-show.hs-posts #hs-showcase {
 }
 #hs-showcase .hs-card-more {
   display: inline-block;
-  font-size: .82em;
+  margin-top: auto;            /* 卡片被撑高时，链接沉到底部 */
+  font-size: 1.05em;
+  font-weight: 600;
   color: #ff69b4;
   text-decoration: none;
 }
 #hs-showcase .hs-card-more:hover {
   text-decoration: underline;
+}
+
+/* ---------- 卡片里的“最新视频”区块 ---------- */
+#hs-showcase .hs-latest {
+  margin: 4px 0 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(255, 255, 255, .14);
+}
+#hs-showcase .hs-latest-cover {
+  display: block;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .12);
+}
+#hs-showcase .hs-latest-cover img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  transition: transform .4s ease;
+}
+#hs-showcase .hs-latest-cover:hover img {
+  transform: scale(1.04);
+}
+#hs-showcase .hs-latest-label {
+  display: inline-block;
+  margin-bottom: 4px;
+  font-size: .95em;
+  font-weight: 600;
+  letter-spacing: .1em;
+  color: #00e6b3;
+}
+#hs-showcase .hs-latest-title {
+  display: block;
+  font-size: 1.08em;
+  font-weight: 600;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, .92);
+  text-decoration: none;
+  transition: color .25s ease;
+}
+#hs-showcase .hs-latest-title:hover {
+  color: #ff69b4;
+}
+#hs-showcase .hs-latest-date {
+  display: block;
+  margin-top: 6px;
+  font-size: .95em;
+  font-weight: 600;
+  color: rgba(255, 255, 255, .62);
 }
 #hs-showcase .hs-hint {
   position: absolute;
@@ -410,17 +478,51 @@ html.hs-js #hs-posts .card-widget a:hover {
   color: #ff69b4;
 }
 
-/* 整体下移：60px 顶栏 + 32px 间距，别和导航栏叠在一起 */
+/* 整页贴边：文章列表靠左、右侧挂件靠右，中间整块留空给壁纸中心 */
 html.hs-js #hs-posts #content-inner {
-  padding-top: 92px;
-  /* 文章列表（74%）与右侧竖排挂件（26%）对称向两边撑开：
-     主题原本 max-width 1200，这里加宽到 1400，两侧各外移 100px */
-  max-width: 1400px;
+  padding: 100px 48px 40px;    /* 上 100px 避开 60px 顶栏，左右各 48px 贴边余量 */
+  max-width: 100%;
 }
-@media (min-width: 2000px) {
+@media (min-width: 900px) {
   html.hs-js #hs-posts #content-inner {
-    max-width: 1600px;
+    justify-content: space-between;
   }
+  /* 文章列表：左侧，宽度 34%（360~760px 之间自适应） */
+  html.hs-js #hs-posts #content-inner > div:first-child {
+    flex: 0 0 clamp(360px, 34%, 760px);
+    width: auto;
+  }
+  /* 右侧竖排挂件：贴右，宽度 20%（260~360px 之间自适应） */
+  html.hs-js #hs-posts #aside-content {
+    flex: 0 0 clamp(260px, 20%, 360px);
+    width: auto;
+  }
+}
+
+/* 右侧悬浮窗适配窄栏（20% ≈ 360px）：去掉图标、缩小内边距与头像 */
+html.hs-js #hs-posts #aside-content .card-info-social-icons {
+  display: none;                 /* 作者卡下的 GitHub 图标 */
+}
+html.hs-js #hs-posts #aside-content .card-widget {
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  border-radius: 14px;
+}
+html.hs-js #hs-posts #aside-content .card-info .avatar-img {
+  width: 88px;
+  height: 88px;
+}
+html.hs-js #hs-posts #aside-content .card-info .author-info-name {
+  font-size: 1.25em;
+}
+html.hs-js #hs-posts #aside-content .item-headline {
+  font-size: 1em;
+  margin-bottom: 10px;
+}
+html.hs-js #hs-posts #aside-content .site-data a .headline,
+html.hs-js #hs-posts #aside-content .card-webinfo .webinfo-item,
+html.hs-js #hs-posts #aside-content .card-recent-post .aside-list-item .title {
+  font-size: .92em;
 }
 
 /* 右侧按钮（明暗切换 / 回顶）：只在文章页显示 */
