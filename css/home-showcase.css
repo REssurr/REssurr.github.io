@@ -229,7 +229,9 @@ html.hs-show.hs-posts #hs-showcase {
   position: absolute;
   top: var(--hs-y, 50%);
   transform: translate(-50%, -50%);
-  width: clamp(280px, 30vw, 440px);
+  /* 卡宽只在这里定义一次；三列的横向位置按它算（--hs-card-w） */
+  --hs-card-w: clamp(280px, 30vw, 440px);
+  width: var(--hs-card-w);
   /* 两卡等高：内容少的靠 min-height 撑开，"我的个人空间"沉到底部 */
   min-height: clamp(260px, 34vh, 380px);
   display: flex;
@@ -249,6 +251,17 @@ html.hs-show.hs-posts #hs-showcase {
 }
 #hs-showcase .hs-card--right {
   left: 75%;
+}
+#hs-showcase .hs-card--mid {
+  left: 50%;
+}
+/* 三列并列：左/右卡按卡宽外扩，使「卡间空隙 = 卡片到屏幕边缘的距离」，
+   1024–1920 全程成立（20%/50%/80% 那种写法在 1440 以下会把卡贴死） */
+#hs-showcase.hs-cols-3 .hs-card--left {
+  left: calc(25% - var(--hs-card-w) / 4);
+}
+#hs-showcase.hs-cols-3 .hs-card--right {
+  left: calc(75% + var(--hs-card-w) / 4);
 }
 /* 顶边贴水平平分线（50%），卡片向下延伸 */
 #hs-showcase .hs-card--anchor-top {
@@ -556,6 +569,7 @@ html:not(.hs-js) #hs-showcase .hs-avatar {
 }
 html:not(.hs-js) #hs-showcase .hs-card,
 html:not(.hs-js) #hs-showcase .hs-card--left,
+html:not(.hs-js) #hs-showcase .hs-card--mid,
 html:not(.hs-js) #hs-showcase .hs-card--right {
   position: static;
   top: auto;
