@@ -59,6 +59,13 @@
   position: relative;
   z-index: 1;
   width: 100% !important;
+  padding: 0 40px;
+  text-align: center;            /* 标题与日期/分类一起居中 */
+}
+
+/* 卡片里不显示正文摘要，只留标题和元信息 */
+#hs-posts .recent-post-item > .recent-post-info > .content {
+  display: none !important;
 }
 
 /* ===== 页脚渐变：上半段纯背景色，下半段渐入粉色（50% 处开始过渡） ===== */
