@@ -3,12 +3,12 @@
   background-attachment: scroll !important;
 }
 
-/* ===== 文章页顶部横幅：头顶贴住页面上沿，底边同步上收 ===== */
+/* ===== 文章页顶部横幅：图片位置不动，高度回到原来的比例 ===== */
 #page-header.post-bg {
-  /* 高度随宽度走；扣掉的 6.7vw 正好是「从画面顶端到头顶」的距离 */
-  height: max(320px, min(calc(66vh - 6.7vw), 35.3vw));
-  /* 上移量 = 头顶在图中的位置（0.1074 × 62.5vw），移动后头顶正好落在 y=0 */
-  background-position: center -6.7vw !important;
+  /* 高度随宽度走：宽屏时放大图片也不会把头部顶出画面 */
+  height: max(320px, min(66vh, 42vw));
+  /* 上移 4.5vw 让发顶贴住页面上沿（这是调好的基准位置，不要再改） */
+  background-position: center -4.5vw !important;
   position: relative;
   z-index: 1;
 }
