@@ -3,18 +3,32 @@
   background-attachment: scroll !important;
 }
 
-/* ===== 文章页顶部横幅：优先显示画面顶部，保证人物头部完整且不被标题压住 ===== */
+/* ===== 文章页顶部横幅：头顶贴住页面上沿，底边同步上收 ===== */
 #page-header.post-bg {
-  /* 高度随宽度走：宽屏时放大图片也不会把头部顶出画面 */
-  height: max(320px, min(66vh, 42vw));
-  /* 上移 6.5vw，让头顶正好贴住页面顶边，横幅里多露出下方的身体 */
-  background-position: center -4.5vw !important;
+  /* 高度随宽度走；扣掉的 6.7vw 正好是「从画面顶端到头顶」的距离 */
+  height: max(320px, min(calc(66vh - 6.7vw), 35.3vw));
+  /* 上移量 = 头顶在图中的位置（0.1074 × 62.5vw），移动后头顶正好落在 y=0 */
+  background-position: center -6.7vw !important;
+  position: relative;
+  z-index: 1;
+}
+
+/* 标题骑在「封面图 / 正文」的分界线上 */
+#page-header.post-bg #post-info {
+  bottom: 0;
+  /* 让标题（不是整块信息）正好骑在分界线上：整块居中后再下移半个 meta 高度 */
+  transform: translateY(calc(50% + 24px));
+  z-index: 2;
 }
 
 @media screen and (max-width: 768px) {
   #page-header.post-bg {
-    height: 320px;
+    height: 300px;
     background-position: 35% top !important;
+  }
+  #page-header.post-bg #post-info {
+    bottom: 20px;
+    transform: none;
   }
 }
 
