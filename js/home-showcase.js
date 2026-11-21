@@ -284,6 +284,17 @@
     document.addEventListener(ev, retryPostBg, { passive: true });
   });
 
+  // 文章卡片整块可点：空白处也进文章（标题/日期本来的链接照旧）
+  document.querySelectorAll('#hs-posts .recent-post-item').forEach(function (item) {
+    var link = item.querySelector('.article-title');
+    if (!link) return;
+    item.style.cursor = 'pointer';
+    item.addEventListener('click', function (e) {
+      if (e.target.closest('a')) return;     // 点的是链接，交给浏览器
+      window.location.href = link.getAttribute('href');
+    });
+  });
+
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   window.scrollTo(0, 0);
 })();

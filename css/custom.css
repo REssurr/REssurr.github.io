@@ -7,7 +7,8 @@
 #page-header.post-bg {
   /* 高度随宽度走：宽屏时放大图片也不会把头部顶出画面 */
   height: max(320px, min(66vh, 42vw));
-  background-position: center top !important;
+  /* 上移 6.5vw，让头顶正好贴住页面顶边，横幅里多露出下方的身体 */
+  background-position: center -4.5vw !important;
 }
 
 @media screen and (max-width: 768px) {
