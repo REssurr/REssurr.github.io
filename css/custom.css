@@ -13,11 +13,13 @@
   z-index: 1;
 }
 
-/* 标题骑在「封面图 / 正文」的分界线上 */
+/* 标题抬到「页面水平平分线」上（视口中线，不是图片底边） */
 #page-header.post-bg #post-info {
-  bottom: 0;
-  /* 让标题（不是整块信息）正好骑在分界线上：整块居中后再下移半个 meta 高度 */
-  transform: translateY(calc(50% + 24px));
+  bottom: auto;
+  /* 50vh = 视口中线；再留 120px 兜底，防止横幅很矮时标题压到正文 */
+  top: min(50vh, calc(100% - 120px));
+  /* -50% 让信息块中线落在 50vh，+24px 再把标题本身推到线上 */
+  transform: translateY(calc(-50% + 24px));
   z-index: 2;
 }
 
