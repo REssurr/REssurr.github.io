@@ -168,14 +168,14 @@
   }
 }
 
-/* ===== 例句（```text 代码块）：放大 + 暖色突出，去掉代码框外壳 ===== */
+/* ===== 例句（```text 代码块）：放大 + 蓝粉双色，去掉代码框外壳 ===== */
 #article-container figure.highlight.text,
 #article-container figure.highlight.plaintext {
   margin: 1.3em 0;
   padding: .85em 1.1em;
-  border-left: 4px solid #ffb74d;
+  border-left: 4px solid #49b1f5;
   border-radius: 10px;
-  background: rgba(255, 183, 77, .10) !important;
+  background: linear-gradient(100deg, rgba(73, 177, 245, .16) 0%, rgba(255, 105, 180, .13) 100%) !important;
   box-shadow: none;
 }
 
@@ -208,7 +208,7 @@
 
 #article-container figure.highlight.text .code pre,
 #article-container figure.highlight.plaintext .code pre {
-  color: #ffd08a;
+  color: #b9dcff;
   font-size: 1.25em;
   font-weight: 500;
   line-height: 1.8;
