@@ -69,6 +69,105 @@
   display: none !important;
 }
 
+/* ===== 文章正文排版：字号放大，标题/引用/代码/表格分区上色 ===== */
+#article-container {
+  font-size: 17px;
+  line-height: 1.9;
+  letter-spacing: .01em;
+}
+
+#article-container p {
+  margin: 0 0 1.15em;
+}
+
+/* 一级小节：淡色底 + 左侧色条 */
+#article-container h2 {
+  margin: 2.2em 0 .9em;
+  padding: .45em .8em;
+  border-left: 6px solid #49b1f5;
+  border-radius: 6px;
+  background: rgba(73, 177, 245, .12);
+  font-size: 1.45em;
+  line-height: 1.4;
+}
+
+/* 二级小节：粉色竖条 */
+#article-container h3 {
+  margin: 1.8em 0 .7em;
+  padding: .1em 0 .1em .7em;
+  border-left: 4px solid #ff69b4;
+  font-size: 1.2em;
+  line-height: 1.5;
+}
+
+/* 主题默认的标题前缀图标去掉，改用上面的色条 */
+#article-container h2::before,
+#article-container h3::before {
+  content: none;
+  display: none;
+}
+
+/* 引用块：做成浅色文本框 */
+#article-container blockquote {
+  margin: 1.3em 0;
+  padding: .9em 1.1em;
+  border-left: 4px solid #49b1f5;
+  border-radius: 8px;
+  background: rgba(73, 177, 245, .09);
+  color: inherit;
+}
+
+#article-container blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* 行内代码：粉色胶囊，和正文区分开 */
+#article-container code:not([class*='language-']) {
+  padding: .12em .45em;
+  border-radius: 5px;
+  background: rgba(255, 105, 180, .16);
+  color: #ffa8cf;
+  font-size: .92em;
+}
+
+/* 加粗：换成主题色，长文里一眼找到重点 */
+#article-container strong {
+  color: #ffa8cf;
+}
+
+/* 表格：表头染色 + 斑马纹 */
+#article-container table th {
+  background: rgba(73, 177, 245, .16);
+  color: inherit;
+}
+
+#article-container table tr:nth-child(2n) {
+  background: rgba(255, 255, 255, .035);
+}
+
+/* 图片：圆角 + 阴影，避免大图糊在背景上 */
+#article-container img {
+  border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, .35);
+}
+
+/* 代码块：圆角 + 阴影（主题自带深色底，这里只补外观） */
+#article-container figure.highlight,
+#article-container .code-container {
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .3);
+}
+
+@media screen and (max-width: 768px) {
+  #article-container {
+    font-size: 16px;
+    line-height: 1.85;
+  }
+  #article-container h2 {
+    font-size: 1.3em;
+  }
+}
+
 /* ===== 页脚渐变：上半段纯背景色，下半段渐入粉色（50% 处开始过渡） ===== */
 #footer {
   background: linear-gradient(
