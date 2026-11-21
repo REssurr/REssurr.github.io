@@ -168,6 +168,60 @@
   }
 }
 
+/* ===== 例句（```text 代码块）：放大 + 暖色突出，去掉代码框外壳 ===== */
+#article-container figure.highlight.text,
+#article-container figure.highlight.plaintext {
+  margin: 1.3em 0;
+  padding: .85em 1.1em;
+  border-left: 4px solid #ffb74d;
+  border-radius: 10px;
+  background: rgba(255, 183, 77, .10) !important;
+  box-shadow: none;
+}
+
+/* 例句不是代码：去掉窗口标题栏（mac 圆点 / text 标签 / 复制键）与行号 */
+#article-container figure.highlight.text .highlight-tools,
+#article-container figure.highlight.plaintext .highlight-tools,
+#article-container figure.highlight.text .gutter,
+#article-container figure.highlight.plaintext .gutter {
+  display: none;
+}
+
+/* 内层表格/单元格的深色底全部抹掉，只留外层暖色框 */
+#article-container figure.highlight.text table,
+#article-container figure.highlight.text tbody,
+#article-container figure.highlight.text tr,
+#article-container figure.highlight.text td,
+#article-container figure.highlight.text .code,
+#article-container figure.highlight.text .code pre,
+#article-container figure.highlight.plaintext table,
+#article-container figure.highlight.plaintext tbody,
+#article-container figure.highlight.plaintext tr,
+#article-container figure.highlight.plaintext td,
+#article-container figure.highlight.plaintext .code,
+#article-container figure.highlight.plaintext .code pre {
+  background: transparent !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#article-container figure.highlight.text .code pre,
+#article-container figure.highlight.plaintext .code pre {
+  color: #ffd08a;
+  font-size: 1.25em;
+  font-weight: 500;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+@media screen and (max-width: 768px) {
+  #article-container figure.highlight.text .code pre,
+  #article-container figure.highlight.plaintext .code pre {
+    font-size: 1.12em;
+  }
+}
+
 /* ===== 页脚渐变：上半段纯背景色，下半段渐入粉色（50% 处开始过渡） ===== */
 #footer {
   background: linear-gradient(
