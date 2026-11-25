@@ -278,3 +278,14 @@
     #ff69b4 100%
   ) !important;
 }
+
+/* ===== 免流那篇的封面：角色插画人物偏右，卡片默认居中裁切会切掉人，把可视窗口推到右侧 ===== */
+#recent-posts .post_cover img.post-bg[src*="v6free/04-character"] {
+  object-position: 100% center;
+}
+
+/* 这一张要看清人：其它卡片的毛玻璃（blur 5px + scale 1.25）会把人物糊没，这里取消模糊与放大，只压一点亮度好让标题读得清 */
+#hs-posts .post_cover img.post-bg[src*="v6free/04-character"] {
+  filter: brightness(.9) saturate(1.08);
+  transform: none;
+}
