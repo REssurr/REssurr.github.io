@@ -1,0 +1,519 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>基于双栈中转机的开发区校园网 IPv6 免流配置以及复盘 | 复活颂的Blog</title><meta name="author" content="REssurr"><meta name="copyright" content="REssurr"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="缘起11 月 26 日《蓝色星原：旅谣》公测，25 日开预下载。启动器给出的安装包是 84.84 GB，需要 93.3 GB 空间，装完进游戏还有 14.66 GB 热更。 但是校园网额度已经超支，本月流量也所剩不多，故而需要一个能立马下载且不耗流量的方法。 学校的计费通知里有一条：校园网免费流量及超出流量均指校园网外流入量，各类校园网内服务（校内网站浏览、业务系统使用、邮箱、大工云盘等）和下一代">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于双栈中转机的开发区校园网 IPv6 免流配置以及复盘">
+<meta property="og:url" content="https://ressurr.github.io/2026/11/25/%E6%A0%A1%E5%9B%AD%E7%BD%91IPv6%E5%85%8D%E6%B5%81/index.html">
+<meta property="og:site_name" content="复活颂的Blog">
+<meta property="og:description" content="缘起11 月 26 日《蓝色星原：旅谣》公测，25 日开预下载。启动器给出的安装包是 84.84 GB，需要 93.3 GB 空间，装完进游戏还有 14.66 GB 热更。 但是校园网额度已经超支，本月流量也所剩不多，故而需要一个能立马下载且不耗流量的方法。 学校的计费通知里有一条：校园网免费流量及超出流量均指校园网外流入量，各类校园网内服务（校内网站浏览、业务系统使用、邮箱、大工云盘等）和下一代">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ressurr.github.io/img/v6free/02-ingame-download.jpg">
+<meta property="article:published_time" content="2026-11-25T15:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-25T14:50:47.733Z">
+<meta property="article:author" content="REssurr">
+<meta property="article:tag" content="折腾">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ressurr.github.io/img/v6free/02-ingame-download.jpg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "基于双栈中转机的开发区校园网 IPv6 免流配置以及复盘",
+  "url": "https://ressurr.github.io/2026/11/25/%E6%A0%A1%E5%9B%AD%E7%BD%91IPv6%E5%85%8D%E6%B5%81/",
+  "image": "https://ressurr.github.io/img/v6free/02-ingame-download.jpg",
+  "datePublished": "2026-11-25T15:00:00.000Z",
+  "dateModified": "2026-11-25T14:50:47.733Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "REssurr",
+      "url": "https://ressurr.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="https://ressurr.github.io/2026/11/25/%E6%A0%A1%E5%9B%AD%E7%BD%91IPv6%E5%85%8D%E6%B5%81/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        const data = { value }
+
+        if (ttl != null) {
+          data.expiry = Date.now() + ttl * 86400000
+        }
+
+        localStorage.setItem(key, JSON.stringify(data))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return
+
+        try {
+          const data = JSON.parse(itemStr)
+
+          if (data.expiry && Date.now() > data.expiry) {
+            localStorage.removeItem(key)
+            return
+          }
+
+          return data.value
+        } catch {
+          localStorage.removeItem(key)
+        }
+      }
+    }
+
+    const scriptCache = new Map()
+    const cssCache = new Map()
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => {
+        if (scriptCache.has(url)) {
+          return scriptCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+
+          script.src = url
+          script.async = true
+
+          for (const key in attr) {
+            script.setAttribute(key, attr[key])
+          }
+
+          script.onload = resolve
+          script.onerror = reject
+
+          document.head.appendChild(script)
+        })
+
+        scriptCache.set(url, promise)
+
+        return promise
+      },
+      getCSS: (url, id) => {
+        if (cssCache.has(url)) {
+          return cssCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const link = document.createElement('link')
+
+          link.rel = 'stylesheet'
+          link.href = url
+
+          if (id) {
+            link.id = id
+          }
+
+          link.onload = resolve
+          link.onerror = reject
+
+          document.head.appendChild(link)
+        })
+
+        cssCache.set(url, promise)
+
+        return promise
+      },
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+      const activateDarkMode = () => {
+        document.documentElement.dataset.theme = 'dark'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.dataset.theme = 'light'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '基于双栈中转机的开发区校园网 IPv6 免流配置以及复盘',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css?v=17"><meta name="generator" content="Hexo 8.1.2"></head><body><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/v6free/02-ingame-download.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">复活颂的Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">基于双栈中转机的开发区校园网 IPv6 免流配置以及复盘</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">基于双栈中转机的开发区校园网 IPv6 免流配置以及复盘</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-11-25T15:00:00.000Z" title="发表于 2026-11-25 23:00:00">2026-11-25</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-11-25T14:50:47.733Z" title="更新于 2026-11-25 22:50:47">2026-11-25</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%98%E8%85%BE/">折腾</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="缘起"><a href="#缘起" class="headerlink" title="缘起"></a>缘起</h2><p>11 月 26 日《蓝色星原：旅谣》公测，25 日开预下载。启动器给出的安装包是 84.84 GB，需要 93.3 GB 空间，装完进游戏还有 14.66 GB 热更。</p>
+<p>但是校园网额度已经超支，本月流量也所剩不多，故而需要一个能立马下载且不耗流量的方法。</p>
+<p><a target="_blank" rel="noopener" href="https://inv.dlut.edu.cn/info/1012/1674.htm">学校的计费通知</a>里有一条：<strong>校园网免费流量及超出流量均指校园网外流入量，各类校园网内服务（校内网站浏览、业务系统使用、邮箱、大工云盘等）和下一代互联网 IPv6 等均不计算流量。</strong></p>
+<p>也就是说，走 IPv6 的部分不算钱。目标因此明确：在 11 月 25 日当晚把游戏下完，同时让这部分流量全部走 IPv6。</p>
+<p>折腾了一中午，总算是搞好了，踩了很多坑，所以本文同时既是技术分享也是实战复盘。读者可以先用自己的情况照着下面这张流程图判断一遍。</p>
+<p><img src="/img/v6free/01-decision-tree.png" alt="免流下载决策树"></p>
+<br>
+<br>
+
+<h2 id="别人试过什么"><a href="#别人试过什么" class="headerlink" title="别人试过什么"></a>别人试过什么</h2><p><strong>Q：只是想让下载流量走 IPv6，公开方案都有哪些？</strong></p>
+<p><strong>A：</strong> 围绕「让下载流量走 IPv6」，公开方案大致分三类：改本地 DNS 应答、改 hosts 加本地转发、用双栈服务器做隧道。</p>
+<ol>
+<li><p><strong>本地 DNS 改写应答。</strong> 用 <a target="_blank" rel="noopener" href="https://technitium.com/dns/">Technitium DNS Server</a> 搭本机 DNS，上游 202.118.66.6，给目标 CDN 加通配 AAAA 指向教育网节点。</p>
+</li>
+<li><p><strong>hosts 加本地转发。</strong> <a target="_blank" rel="noopener" href="https://www.dogfight360.com/blog/19189/">UsbEAm</a>：做测速优选 CDN 节点后写系统 hosts，并在本机监听 80&#x2F;443 转发到选中的节点。</p>
+</li>
+<li><p><strong>双栈 VPS 加隧道。</strong> <a target="_blank" rel="noopener" href="https://developers.cloudflare.com/warp-client/">Cloudflare WARP</a> 或者 <a target="_blank" rel="noopener" href="https://azure.microsoft.com/free/students/">Azure</a> + <a target="_blank" rel="noopener" href="https://github.com/SagerNet/sing-box">sing-box</a>。</p>
+</li>
+</ol>
+<p>下面会说明前两种方法都无法满足我的需求的原因。</p>
+<br>
+<br>
+
+<h2 id="我做了什么"><a href="#我做了什么" class="headerlink" title="我做了什么"></a>我做了什么</h2><p>首先确认本机确实有 IPv6 地址。</p>
+<h3 id="一：Technitium-DNS-Server，在本机改写-DNS-应答"><a href="#一：Technitium-DNS-Server，在本机改写-DNS-应答" class="headerlink" title="一：Technitium DNS Server，在本机改写 DNS 应答"></a>一：Technitium DNS Server，在本机改写 DNS 应答</h3><p><strong>Q：改 DNS 应答这条路能走通吗？</strong></p>
+<p><strong>A：</strong> 走不通，第 1 步就断在「目标域名根本没有 AAAA 记录」上。给目标域名查 AAAA：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nslookup -type=AAAA azurpromilia.manjuu.com 202.118.66.6</span><br></pre></td></tr></table></figure>
+
+<p>我逐个查了 <code>azurpromilia.manjuu.com</code>、<code>webstatic.manjuu.com</code>、<code>plat-cdn.manjuu.com</code>、<code>api-grp.manjuu.com</code>、<code>www.manjuu.com</code>、<code>l.taptap.cn</code>、<code>d.3839.com</code>，全部只有 A 记录。没有 AAAA 可指，改解析无从谈起。</p>
+<p>即便有 AAAA，也还要确认这个节点真的在服务同一份文件：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -6 --resolve &quot;域名:443:节点地址&quot; https://域名/</span><br></pre></td></tr></table></figure>
+
+<p>能拿到 206 且证书对得上才算可用，节点必须是同一 CDN 的边缘机，证书和文件才对得上。</p>
+<p>这个方案剩下的流程仍然值得记下来，换个游戏也许就用得上：</p>
+<ol>
+<li>装 Technitium DNS Server，装完它监听本机 53 端口，管理页默认 <code>http://localhost:5380</code>。</li>
+<li>在 Settings → Recursion 里把 Forwarders 设成 <code>202.118.66.6</code>，没配置过的查询照常转发给学校 DNS。</li>
+<li>给目标域名建一个 Zone，加 AAAA 记录指向选定的节点。只写 AAAA 会丢掉 IPv4 退路，原来的 A 记录建议一起补进 Zone。</li>
+<li>网卡 DNS 改成 <code>127.0.0.1</code>，<code>ipconfig /flushdns</code>。</li>
+<li>验收：<code>nslookup -type=AAAA 域名</code> 应返回你写的地址；重开客户端下载，同时盯计费页面是否不动。</li>
+<li>不用了把网卡 DNS 改回 DHCP。本机 DNS 进程一停，整台机器的解析都会断，这是这个方案最大的副作用。</li>
+</ol>
+<h3 id="二：UsbEAm-游戏下载助手，写-hosts-加本机转发"><a href="#二：UsbEAm-游戏下载助手，写-hosts-加本机转发" class="headerlink" title="二：UsbEAm 游戏下载助手，写 hosts 加本机转发"></a>二：UsbEAm 游戏下载助手，写 hosts 加本机转发</h3><p><strong>Q：那 UsbEAm 按节点转发呢？</strong></p>
+<p><strong>A：</strong> 也不行，它对这个游戏的两条前提一条都不满足。</p>
+<p>它只解决「CDN 有 IPv6 节点、但客户端按普通 DNS 拿到了 IPv4」的情况，对「CDN 根本没有 IPv6」无效。同时，蓝原启动器写死了 IP 地址，根本不会走到查 IP 这一步。我们这个游戏两条都不满足，所以没走。故而我想到了使用 TUN 来完成。</p>
+<p>它的流程是：</p>
+<ol>
+<li>同样先确认目标 CDN 有 IPv6 节点：<code>nslookup -type=AAAA 域名</code>。</li>
+<li>下载 UsbEAm（<a target="_blank" rel="noopener" href="https://www.dogfight360.com/blog/19189/">dogfight360.com</a> ）。</li>
+<li>输入目标 CDN，进「下载」，点测速优选，挑延迟最低的节点；要免流就得挑 IPv6 地址的节点。</li>
+<li>点应用。它在 hosts 里给域名加一行指向 <code>127.0.0.1</code>，同时在本机监听 80&#x2F;443，把请求转发到选中的节点。退出或点还原会清掉 hosts。</li>
+</ol>
+<h3 id="三：Cloudflare-WARP"><a href="#三：Cloudflare-WARP" class="headerlink" title="三：Cloudflare WARP"></a>三：Cloudflare WARP</h3><p><strong>Q：WARP 官方客户端有 IPv6 入口，为什么不直接用？</strong></p>
+<p><strong>A：</strong> 卡在连接这一步，最后查明是到入口的 UDP 被拦。</p>
+<ol>
+<li>装官方客户端。首次启动会问用途，选左侧「私密浏览」；右侧 Cloudflare One 要企业账号。</li>
+<li>把协议和端点都固定到 IPv6：<code>warp-cli tunnel protocol set MASQUE</code>、<code>warp-cli tunnel endpoint set &quot;[2606:4700:d0::a29f:c001]:443&quot;</code>、<code>warp-cli connect</code>。</li>
+<li>连接到外部服务器后即可开始下载。</li>
+</ol>
+<p>我卡在第 3 步：状态一直是 <code>Connecting</code>，日志里只有</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Performing happy eyeballs to 0.0.0.0:0 and [2606:4700:d0::a29f:c001]:443</span><br><span class="line">Task: Happy Eyeballs Failure</span><br></pre></td></tr></table></figure>
+
+<p>改成 <code>warp-cli tunnel masque-options set h2-only</code>（MASQUE over HTTP&#x2F;2，理论上走 TCP）仍然卡住。期间 WARP 接管全部流量，把学校认证页 <code>172.20.30.3</code> 也带进了隧道，页面打不开，断开并重置端点后才恢复。</p>
+<p>补做协议探测才看清原因：到该端点的 UDP 443 和 UDP 2408 都不通；TCP 443 通、TLS 握手也成功，但 WARP 的 CONNECT 请求没有响应。入口和协议都由 Cloudflare 决定，改不动，放弃。</p>
+<br>
+<br>
+
+<h2 id="只剩自建这一条路"><a href="#只剩自建这一条路" class="headerlink" title="只剩自建这一条路"></a>只剩自建这一条路</h2><p><em>现有方法都已失效，于是只剩最后一种：找到一个可自定义的双栈服务器，然后自己写配置。</em></p>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p><strong>Q：自己搭，搭的到底是什么？</strong></p>
+<p><strong>A：</strong> 用 <a target="_blank" rel="noopener" href="https://github.com/SagerNet/sing-box">sing-box</a> 改动本地路由，将本机所有请求通过 IPv6 隧道从校园网关出去，与 Azure 建立连接，再由 Azure 服务器以 IPv4 形式下载资源，用 IPv6 隧道转发回本机。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">本机程序 ──(IPv4，被 TUN 截走)──▶ 本机 sing-box</span><br><span class="line">                                      │</span><br><span class="line">                                      │ VLESS over TLS over IPv6 TCP 443</span><br><span class="line">                                      ▼</span><br><span class="line">                              Azure 中转机（IPv6 入口 / IPv4 出口）</span><br><span class="line">                                      │</span><br><span class="line">                                      │ 普通 IPv4 请求</span><br><span class="line">                                      ▼</span><br><span class="line">                                游戏 CDN</span><br></pre></td></tr></table></figure>
+
+<p>这里有个容易漏掉的点：只用系统代理是不够的。启动器这类程序多数不读系统代理设置，只有 TUN 虚拟网卡能让它们的流量无条件进入隧道。</p>
+<br>
+<br>
+
+<h2 id="Azure-学生账号"><a href="#Azure-学生账号" class="headerlink" title="Azure 学生账号"></a>Azure 学生账号</h2><p><strong>Q：服务器从哪来？</strong></p>
+<p><strong>A：</strong> 先用 Azure for Students 的免费额度。</p>
+<ol>
+<li>打开 <a target="_blank" rel="noopener" href="https://azure.microsoft.com/free/students/">Azure for Students</a> 页面，用学校邮箱（<code>xxx@mail.dlut.edu.cn</code>）注册。需要邮箱能收验证码；不需要信用卡。</li>
+<li>注册完进入门户，订阅名叫「Azure for Students」。概览页有三块数字：可用额度 <code>US$100</code>、额度过期天数 <code>365</code>（到期作废、不累积，在校期间每年可重新验证身份续期）、当月成本。</li>
+</ol>
+<br>
+<br>
+
+<h2 id="Cloud-Shell-怎么进、怎么选"><a href="#Cloud-Shell-怎么进、怎么选" class="headerlink" title="Cloud Shell 怎么进、怎么选"></a>Cloud Shell 怎么进、怎么选</h2><p><strong>Q：为什么不能直接在门户里点「创建虚拟机」？</strong></p>
+<p><strong>A：</strong> 门户里直接点「创建虚拟机」会弹一个「选择虚拟网络配置」，要求先有资源组、虚拟网络、子网、中继命名空间，学生账号里这些都是空的，下拉全是灰的，点不动。这不是权限问题，是顺序问题：得先有网络，才能建机器。</p>
+<p>所以改用 Cloud Shell，用命令建。</p>
+<ol>
+<li>打开 <a target="_blank" rel="noopener" href="https://shell.azure.com/">https://shell.azure.com</a>。</li>
+<li>第一次会弹「欢迎使用 Azure Cloud Shell」，选 <strong>Bash</strong>。</li>
+<li>接着弹「入门」，做两个选择：<ul>
+<li>选 <strong>「无需存储账户」</strong>。Cloud Shell 会话是临时的，闲置约 20 分钟回收，文件清空。我们不需要它持久化任何东西，脚本和密钥都在本机。</li>
+<li><strong>订阅</strong>下拉选「Azure for Students」。如果下拉是空的，说明登录的账号不对，重新登录。</li>
+<li>「使用现有的专用虚拟网络」不要勾。</li>
+<li>点「应用」。</li>
+</ul>
+</li>
+<li>等几秒，出现 <code>azureuser@Azure:~$</code> 提示符，就进去了。</li>
+</ol>
+<p>需要理解 Cloud Shell 是什么：它是微软临时给你的一台 Ubuntu 容器，有 <code>az</code>、<code>git</code>、<code>curl</code>，但没有公网 IP，不能对外提供服务，也不能在上面长期跑程序。它只是遥控器，真正要租的服务器还没建。</p>
+<p><code>az</code> 是 Azure 的命令行工具，登录状态下已用你的账号授权，等价于在门户上点鼠标。</p>
+<br>
+<br>
+
+<h2 id="把搭建交给-agent"><a href="#把搭建交给-agent" class="headerlink" title="把搭建交给 agent"></a>把搭建交给 agent</h2><p>接下来的操作涉及到对云端服务器的操作，让 agent 代劳就好。</p>
+<p>把下面这段直接交给你的 agent。名字、地址、密钥、UUID 全部由它自己决定和生成，不需要你填任何值；它一次只给你一条命令，你粘贴、把输出贴回去，它判断对错再给下一步。你要做的只有三件它做不了的事：在 Azure 里登录、点一次 UAC、盯着计费面板。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">角色</span><br><span class="line">你是我的 Azure 操作向导。我现在已经进到 Azure Cloud Shell 的 Bash 里了，订阅是 Azure for Students（$100 额度，365 天）。</span><br><span class="line">目标：租一台同时有 IPv4 和 IPv6 的 Ubuntu 服务器当跳板，在上面装 sing-box；然后让我的 Windows 电脑用</span><br><span class="line">sing-box 的 TUN 模式，把 IPv4 流量装进 IPv6 隧道送到这台机器，由它用 IPv4 去取资源再回传。</span><br><span class="line">校园网只对 IPv4 计费、IPv6 不计费，所以整条下载不花流量。</span><br><span class="line"></span><br><span class="line">我的情况</span><br><span class="line">- 我不懂命令行，会把你的命令原样粘贴进去。</span><br><span class="line">- 资源名、地址、UUID、密钥都由你决定，不要让我填值。</span><br><span class="line">- 每一步做完，我把输出贴回来，你判断对不对，再给下一步。</span><br><span class="line"></span><br><span class="line">输出格式（每一步都必须这样给）</span><br><span class="line">1. 一句话说清这条命令做什么、为什么需要它。</span><br><span class="line">2. 一个可直接粘贴的 bash 代码块（Cloud Shell 阶段）或 powershell 代码块（本机阶段）。</span><br><span class="line">3. 贴出「期望输出」长什么样，让我知道有没有成功。</span><br><span class="line">4. 写清这一步常见报错怎么处理。</span><br><span class="line">一次只推进一步，不要一口气给二十条命令让我自己对着找错误。</span><br><span class="line"></span><br><span class="line">第一阶段：在 Cloud Shell 里建机</span><br><span class="line">1. 生成一对 SSH 密钥，并把公钥内容打印出来（建 VM 时要用，所以必须先做）。</span><br><span class="line">2. 建资源组：relay-rg，区域 eastasia。</span><br><span class="line">3. 建双栈 VNet：IPv4 地址空间 10.10.0.0/16；IPv6 地址空间先用 2404:f800:8000:122::/63</span><br><span class="line">   （报范围不合法再换一段同规模的）；子网 10.10.1.0/24 与 2404:f800:8000:122::/64。</span><br><span class="line">   IPv6 前缀在「地址空间」和「子网前缀」两处都要给，且属于同一段 /63。</span><br><span class="line">4. 建两个公网 IP：pip4，和 pip6（--sku Standard --version IPv6 --allocation-method Static）。</span><br><span class="line">5. 建 NSG（relayNSG），放行 TCP 22 和 443。443 是隧道端口。</span><br><span class="line">6. 建 Ubuntu 24.04 的 VM（relay），带第 1 步的公钥。规格依次试 B2ats_v2、B2s、B1ms、</span><br><span class="line">   D2s_v3、B2ls_v2；报 SkuNotAvailable 就是区域没库存，删掉半成品 VM、NIC、pip4 换下一个。</span><br><span class="line">7. 给网卡补 IPv6 IP 配置：az network nic ip-config create，必须用</span><br><span class="line">   --private-ip-address-version IPv6 并且带 --subnet，否则报</span><br><span class="line">   StandardPublicIpCannotBeAttachedToIpConfigurationWithoutSubnet。</span><br><span class="line"></span><br><span class="line">第二阶段：登录机器配置服务端（在 Cloud Shell 里用 ssh 连进去后执行）</span><br><span class="line">8. 改 netplan：dhcp4、dhcp6 都打开，accept-ra: true，dhcp4-overrides 与 dhcp6-overrides</span><br><span class="line">   写相同的 route-metric；重启 systemd-networkd 后 ip -6 addr 要有 2404: 开头的地址。</span><br><span class="line">9. 装 sing-box：从 GitHub release 取 sing-box-1.14.4-linux-amd64.tar.gz 解压，</span><br><span class="line">   install -m755 到 /usr/local/bin，写 systemd unit 并 enable --now。</span><br><span class="line">   下载慢就换 https://gh-proxy.com/ 镜像前缀。</span><br><span class="line">10. 用 uuidgen 生成 UUID；openssl 自签一张 CN=www.microsoft.com 的证书；</span><br><span class="line">    写 /etc/sing-box/config.json（vless 监听 &quot;::&quot; 的 443，outbound direct）；restart。</span><br><span class="line">11. 开 BBR：/etc/sysctl.d/99-relay.conf 写 fq、bbr、rmem/wmem 134217728、</span><br><span class="line">    tcp_mtu_probing=1、tcp_slow_start_after_idle=0、tcp_notsent_lowat=131072，sysctl --system。</span><br><span class="line">12. 校验：ss -tlnp 里 443 监听在 ::；从本机能连上这台机器的公网 IPv6 的 443。</span><br><span class="line"></span><br><span class="line">第三阶段：回到我的 Windows 本机</span><br><span class="line">13. 下载 sing-box windows-amd64（v1.14 及以上）到 sbc 目录并解压；GitHub 直连下不动时用</span><br><span class="line">    https://gh-proxy.com/ 镜像。</span><br><span class="line">14. 写 sbc\client_tun.json：tun 网卡 172.19.0.1/30、mtu 1400、auto_route；</span><br><span class="line">    outbound 用 vless 连这台机器的公网 IPv6 的 443，TLS 的 server_name 填 www.microsoft.com、</span><br><span class="line">    insecure 为 true；route 里加两条 direct 规则（ip_is_private，以及 202.118.0.0/16、</span><br><span class="line">    210.30.0.0/16、172.20.0.0/16），final 走隧道。文件必须用无 BOM 的 UTF-8 写。</span><br><span class="line">15. 写两个提权脚本：start_tun.ps1（停掉旧的 sing-box 再启动）、stop_tun.ps1（停掉并确认</span><br><span class="line">    默认路由回到校园网关）。</span><br><span class="line">16. 验收（四条都要成立）：</span><br><span class="line">    - Get-NetTCPConnection 里能看到到机器 IPv6 的 443 的 Established；</span><br><span class="line">    - 服务端 journalctl -u sing-box 里连接来源是教育网 IPv6 前缀；</span><br><span class="line">    - 计费接口 http://172.20.30.1/drcom/chkstatus?callback=cb 的 flow 不涨</span><br><span class="line">      （有约 1 分钟延迟，等一分钟再对比；TUN 开着时它可能返回 &quot;result&quot;:0 且没有 flow 字段，</span><br><span class="line">      那是假象，不代表掉线）；</span><br><span class="line">    - 下载目录体积在涨。</span><br><span class="line">17. 结束后清理：先跑 stop_tun.ps1，再删机器 az group delete -n relay-rg --yes --no-wait</span><br><span class="line">    （不删每月约 8~12 美元）。</span><br><span class="line"></span><br><span class="line">硬规则</span><br><span class="line">- 命令不要加 -o none 掩盖错误；报错先解释原因再给修法。</span><br><span class="line">- 不要把 IPv6 流量塞进隧道，IPv6 本来就不计费。</span><br><span class="line">- 每步都让我确认成功后再继续，不要跳过校验。</span><br><span class="line">- 全部做完后，把公网 IPv4、公网 IPv6、UUID、SSH 私钥路径、配置文件路径汇总给我。</span><br></pre></td></tr></table></figure>
+
+<p><strong>接下来就可以美美下载了！</strong></p>
+<p><img src="/img/v6free/02-ingame-download.jpg" alt="游戏内正在下载：27.8 MB&#x2F;s"></p>
+<br>
+<br>
+
+<h2 id="实测数据"><a href="#实测数据" class="headerlink" title="实测数据"></a>实测数据</h2><p><strong>Q：真的一点流量都没扣？</strong></p>
+<p><strong>A：</strong> 预下载 84.84 GB 只记了 62 KB，热更 14.66 GB 只记了 199 KB，游戏本体合计不到 1 MB。</p>
+<p>先说清楚：下面只有 Azure 这一台是本次真跑出来的数字，其他方案没实测过，后一张表只有定性判断。本机出口不是瓶颈：同一根网线走教育网 IPv6 直连镜像，8 MB 拿到 2.96 MB&#x2F;s，从清华 TUNA 取文件到过 264 Mbps。</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>实测值</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>隧道压测，单连接</td>
+<td>430 KB&#x2F;s</td>
+<td>未调优，单线程</td>
+</tr>
+<tr>
+<td>隧道压测，4 线程</td>
+<td>1.27 MB&#x2F;s</td>
+<td>40 MB &#x2F; 32.3 s，未开 BBR</td>
+</tr>
+<tr>
+<td>隧道压测，8 线程开 BBR</td>
+<td>9.7 MB&#x2F;s（76 Mbps）</td>
+<td>80 MB &#x2F; 8.4 s</td>
+</tr>
+<tr>
+<td>游戏预下载实际速率</td>
+<td>20~27.8 MB&#x2F;s</td>
+<td>启动器与游戏内显示，多并发</td>
+</tr>
+<tr>
+<td>预下载总量</td>
+<td>84.84 GB（落地 79.41 GB）</td>
+<td>启动器报的安装包体积</td>
+</tr>
+<tr>
+<td>游戏内热更</td>
+<td>14.66 GB</td>
+<td>公测当天补的资源</td>
+</tr>
+<tr>
+<td>预下载计费</td>
+<td>flow +62 KB</td>
+<td>84.84 GB 几乎零计费</td>
+</tr>
+<tr>
+<td>热更计费</td>
+<td>flow +199 KB</td>
+<td>14.66 GB</td>
+</tr>
+<tr>
+<td>对照：IPv4 下 10 MB</td>
+<td>flow +12078 KB</td>
+<td>走 IPv4 就照实计</td>
+</tr>
+<tr>
+<td>对照：IPv6 下 35 MB</td>
+<td>flow 不变，act6df 恒 0</td>
+<td>计费系统 v6ip 恒为 ::</td>
+</tr>
+<tr>
+<td>到中转机延迟</td>
+<td>65~106 ms</td>
+<td>跨境，适合下载不适合竞技</td>
+</tr>
+</tbody></table>
+<p>没走通的路线也有实测结论：Cloudflare WARP 卡在到 WARP 入口的 UDP 443 和 2408 都不通，没产生任何速度数据；usque 把 WARP 塞进 TCP 后 TLS 握手能成，但 CONNECT 请求被 RST。两条都记在「我做了什么」里。</p>
+<br>
+<br>
+
+<h2 id="其他双栈服务器方案对比"><a href="#其他双栈服务器方案对比" class="headerlink" title="其他双栈服务器方案对比"></a>其他双栈服务器方案对比</h2><p><strong>Q：只有 Azure 能做这件事吗？</strong></p>
+<p><strong>A：</strong> 不是。凡是同时有公网 IPv4 和公网 IPv6、能连外网 443、流量够跑完这次下载的机器都行；差别在成本、IPv6 好不好拿到、以及能不能长期稳定。下表按本次调研时的情况整理。</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>成本</th>
+<th>IPv6 从哪来</th>
+<th>主要难点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Azure for Students（本次采用）</td>
+<td>0 元，$100 额度 365 天，不需要信用卡</td>
+<td>建 VNet 时自己填一段 IPv6 前缀，再给网卡挂一个 IPv6 公网 IP</td>
+<td>学生邮箱要能认证；eastasia 的 B 系列常缺货，得换规格或换区域</td>
+</tr>
+<tr>
+<td>Oracle Cloud 永久免费</td>
+<td>0 元（Always Free 额度内）</td>
+<td>VCN 先分配 IPv6 前缀，再给实例挂 IPv6 地址</td>
+<td>注册要信用卡、风控严；免费实例可能被回收；名额紧张</td>
+</tr>
+<tr>
+<td>GitHub 学生包 → DigitalOcean</td>
+<td>$200 额度，一年有效</td>
+<td>创建 droplet 时勾上 IPv6</td>
+<td>要绑信用卡；学生包通过需要时间</td>
+</tr>
+<tr>
+<td>RackNerd 等年付小机</td>
+<td>约 $22&#x2F;年，折 13 元&#x2F;月</td>
+<td>看套餐，部分自带 IPv6</td>
+<td>境外付款；便宜套餐不一定给 IPv6，买前要问清</td>
+</tr>
+<tr>
+<td>腾讯云 &#x2F; 阿里云轻量</td>
+<td>约 24 元&#x2F;月（学生机更低）</td>
+<td>IPv6 默认关闭，要在控制台开通并给实例分配</td>
+<td>境内云的服务条款禁止代理用途，有封机风险；但延迟最低</td>
+</tr>
+<tr>
+<td>家里宽带的公网 IPv6 + 旧电脑</td>
+<td>0 元</td>
+<td>运营商下发的 IPv6 前缀</td>
+<td>地址会变，需要 DDNS；机器要常开；家宽上行带宽小</td>
+</tr>
+<tr>
+<td>借同学或朋友的双栈 VPS</td>
+<td>0 元</td>
+<td>看对方机器是不是双栈</td>
+<td>依赖别人；流量和合规责任在机主</td>
+</tr>
+<tr>
+<td>Cloudflare WARP</td>
+<td>0 元</td>
+<td>入口有 IPv6</td>
+<td>协议和端点都由 Cloudflare 定，改不动；本次被本校出口拦掉，失败</td>
+</tr>
+</tbody></table>
+<p>选型的硬条件只有四条：<strong>有公网 IPv6 入口、有公网 IPv4 出口、能对外开 TCP 443、流量够 84.84 GB</strong>。满足这四条，装机步骤完全一样。</p>
+<p>最后选 Azure，是因为它同时满足三件事：真的 0 元且不用绑信用卡；当晚就要用，从注册到拿到机器约十五分钟；IPv6 最省事，在 VNet 里加一段前缀、给网卡挂一个 IPv6 公网 IP 就完事，不用折腾 DDNS 或运营商。代价也写清楚：额度 365 天到期作废、不累积；全月开机约 8<del>12 美元；eastasia 常缺货；跨境延迟 65</del>106 ms，适合下载、不适合竞技。</p>
+<br>
+<br>
+
+<h2 id="坑清单"><a href="#坑清单" class="headerlink" title="坑清单"></a>坑清单</h2><table>
+<thead>
+<tr>
+<th>现象</th>
+<th>原因</th>
+<th>处理</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>SkuNotAvailable</code></td>
+<td>区域库存不足</td>
+<td>换规格重试，删半成品</td>
+</tr>
+<tr>
+<td>VM 里只有 <code>fe80::</code></td>
+<td>网卡没有 IPv6 IP 配置，命令参数写错且 <code>-o none</code> 吞了错误</td>
+<td>用 <code>--private-ip-address-version</code> 重建 ip-config</td>
+</tr>
+<tr>
+<td><code>StandardPublicIpCannotBeAttachedToIpConfigurationWithoutSubnet</code></td>
+<td>ip-config 少了 <code>--subnet</code></td>
+<td>补上</td>
+</tr>
+<tr>
+<td>netplan 报 <code>route-metric</code> 不一致</td>
+<td>只改了 dhcp4 或 dhcp6 一侧</td>
+<td>两处都写</td>
+</tr>
+<tr>
+<td>隧道连不通、TCP 超时</td>
+<td>NSG 没放通 443</td>
+<td>加规则</td>
+</tr>
+<tr>
+<td>隧道一连，校园网登录页打不开</td>
+<td>TUN 把私有地址也接管了</td>
+<td>加 <code>ip_is_private</code> 与校园网段 <code>direct</code></td>
+</tr>
+<tr>
+<td>sing-box 起不来，报 <code>invalid character &#39;茂&#39;</code></td>
+<td>JSON 文件带 BOM</td>
+<td>用无 BOM 的 UTF-8 写入</td>
+</tr>
+<tr>
+<td>SSH 执行的脚本报 <code>Invalid unit name &quot;sing-box\r&quot;</code></td>
+<td>Windows here-string 带 CR</td>
+<td>转成 LF 或 base64</td>
+</tr>
+</tbody></table>
+<br>
+<br>
+
+<h2 id="事后清理"><a href="#事后清理" class="headerlink" title="事后清理"></a>事后清理</h2><p>资源用完就该删，否则额度一直在扣：<code>az group delete -n relay-rg --yes --no-wait</code>。这个命令是后台删除，VM 先消失（表现为公网 IP 立刻连不上），网卡、IP、VNet 随后清掉，资源组名字最后消失，几分钟到十几分钟不等。<code>--no-wait</code> 之后看到 <code>az group list</code> 里还有 <code>relay-rg</code> 是正常的，不要重复执行删除。</p>
+<p>Cloudflare WARP 客户端也一并卸载了：<code>msiexec /x 加产品码 /qn</code>。它留下的服务 <code>WarpJITSvc</code> 需要单独 <code>sc delete</code>。</p>
+<br>
+<br>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><strong>Q：一中午折腾下来，得出了什么？</strong></p>
+<p><strong>A：</strong> 三条路一条比一条绕，最后落到最朴素的那条：自己有一台双栈机器，把 IPv4 的下载流量装进 IPv6 隧道。</p>
+<ul>
+<li>本地 DNS 和 hosts 改写只对「CDN 有 IPv6 节点」的游戏有效，蓝原两条都不沾。</li>
+<li>WARP 看着最省事，但入口和协议都由 Cloudflare 定，本校出口恰好把 UDP 443&#x2F;2408 拦了，改不动。</li>
+<li>自建是唯一可控的：机器、端口、协议、分流规则全在自己手里。代价是要会一点命令行，以及一台服务器的钱——Azure 学生账号这次是 0 元。</li>
+</ul>
+<p>最直观的一组数字：84.84 GB 预下载 + 14.66 GB 热更，计费流量一共 261 KB。免流不是什么魔法，只是把「走 IPv4 下载」换成了「走 IPv6 下载」。</p>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%8A%98%E8%85%BE/">折腾</a></div><div class="post-share"><div class="social-share" data-image="/img/v6free/02-ingame-download.jpg" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/11/20/%E3%81%A8%E3%81%8D%E4%B8%8E%E7%8A%B6%E6%80%81%E5%8A%A8%E8%AF%8D/" title="对とき的深入理解：日语中状态动词与瞬间动词的语义区分"><img class="cover" src="/img/toki/toki-cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">对とき的深入理解：日语中状态动词与瞬间动词的语义区分</div></div><div class="info-2"><div class="info-item-1">缘起学习《大家的日语》第 23 课时，书上对「とき」这个语法的解释让我颇有疑惑。  于是我构想了一个句子，想推翻教材的解释： 1来日本的途中，在飞机上吃了饭。     主句和从句各用什么时态Q：这个句子里，主句和从句分别该用什么时态？ A：「来る」这个动词是瞬间完成的，比较特殊——「来ている」和「来た」是同一个意思，因此无法用这个表示状态的语法来描述。若用普通形，意思会变成「还没到时，吃了」。 Q：有精确的表达方式吗？ A：「途中」这个词是精确的： 1日本へ行く途中、飛行機でご飯を食べた。     去查词典这时我去查了词典：  其实此时答案已经出现了，只是我没有察觉。    词典上的两种意思Q：我看词典上有两种意思啊，一种表过去并行，一种表过去先后。 A：  るとき：① 先做后件，再做前件；② 前件与后件同时发生 たとき：先做前件，再做后件  带 V-た 的语法，往往可以按以下两种方式之一解释：  V-た 整体起到类似形容词的效果，例如「夢を見たまま」； V-た 表示的动作已经完成，因此「VA-たとき、VB」一定是先 VA 再 VB。  所以： 12日本へ行ったとき、飛行機でご飯...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">REssurr</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/REssurr" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到复活颂的赛博自留地</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%98%E8%B5%B7"><span class="toc-number">1.</span> <span class="toc-text">缘起</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%AB%E4%BA%BA%E8%AF%95%E8%BF%87%E4%BB%80%E4%B9%88"><span class="toc-number">2.</span> <span class="toc-text">别人试过什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%88%91%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88"><span class="toc-number">3.</span> <span class="toc-text">我做了什么</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%EF%BC%9ATechnitium-DNS-Server%EF%BC%8C%E5%9C%A8%E6%9C%AC%E6%9C%BA%E6%94%B9%E5%86%99-DNS-%E5%BA%94%E7%AD%94"><span class="toc-number">3.1.</span> <span class="toc-text">一：Technitium DNS Server，在本机改写 DNS 应答</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%EF%BC%9AUsbEAm-%E6%B8%B8%E6%88%8F%E4%B8%8B%E8%BD%BD%E5%8A%A9%E6%89%8B%EF%BC%8C%E5%86%99-hosts-%E5%8A%A0%E6%9C%AC%E6%9C%BA%E8%BD%AC%E5%8F%91"><span class="toc-number">3.2.</span> <span class="toc-text">二：UsbEAm 游戏下载助手，写 hosts 加本机转发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%EF%BC%9ACloudflare-WARP"><span class="toc-number">3.3.</span> <span class="toc-text">三：Cloudflare WARP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%AA%E5%89%A9%E8%87%AA%E5%BB%BA%E8%BF%99%E4%B8%80%E6%9D%A1%E8%B7%AF"><span class="toc-number">4.</span> <span class="toc-text">只剩自建这一条路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E7%90%86"><span class="toc-number">5.</span> <span class="toc-text">原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Azure-%E5%AD%A6%E7%94%9F%E8%B4%A6%E5%8F%B7"><span class="toc-number">6.</span> <span class="toc-text">Azure 学生账号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Cloud-Shell-%E6%80%8E%E4%B9%88%E8%BF%9B%E3%80%81%E6%80%8E%E4%B9%88%E9%80%89"><span class="toc-number">7.</span> <span class="toc-text">Cloud Shell 怎么进、怎么选</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8A%8A%E6%90%AD%E5%BB%BA%E4%BA%A4%E7%BB%99-agent"><span class="toc-number">8.</span> <span class="toc-text">把搭建交给 agent</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E6%B5%8B%E6%95%B0%E6%8D%AE"><span class="toc-number">9.</span> <span class="toc-text">实测数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E5%8F%8C%E6%A0%88%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%96%B9%E6%A1%88%E5%AF%B9%E6%AF%94"><span class="toc-number">10.</span> <span class="toc-text">其他双栈服务器方案对比</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9D%91%E6%B8%85%E5%8D%95"><span class="toc-number">11.</span> <span class="toc-text">坑清单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E5%90%8E%E6%B8%85%E7%90%86"><span class="toc-number">12.</span> <span class="toc-text">事后清理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">13.</span> <span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/11/25/%E6%A0%A1%E5%9B%AD%E7%BD%91IPv6%E5%85%8D%E6%B5%81/" title="基于双栈中转机的开发区校园网 IPv6 免流配置以及复盘"><img src="/img/v6free/02-ingame-download.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="基于双栈中转机的开发区校园网 IPv6 免流配置以及复盘"/></a><div class="content"><a class="title" href="/2026/11/25/%E6%A0%A1%E5%9B%AD%E7%BD%91IPv6%E5%85%8D%E6%B5%81/" title="基于双栈中转机的开发区校园网 IPv6 免流配置以及复盘">基于双栈中转机的开发区校园网 IPv6 免流配置以及复盘</a><time datetime="2026-11-25T15:00:00.000Z" title="发表于 2026-11-25 23:00:00">2026-11-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/11/20/%E3%81%A8%E3%81%8D%E4%B8%8E%E7%8A%B6%E6%80%81%E5%8A%A8%E8%AF%8D/" title="对とき的深入理解：日语中状态动词与瞬间动词的语义区分"><img src="/img/toki/toki-cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="对とき的深入理解：日语中状态动词与瞬间动词的语义区分"/></a><div class="content"><a class="title" href="/2026/11/20/%E3%81%A8%E3%81%8D%E4%B8%8E%E7%8A%B6%E6%80%81%E5%8A%A8%E8%AF%8D/" title="对とき的深入理解：日语中状态动词与瞬间动词的语义区分">对とき的深入理解：日语中状态动词与瞬间动词的语义区分</a><time datetime="2026-11-20T08:52:00.000Z" title="发表于 2026-11-20 16:52:00">2026-11-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/10/17/MyFirstBlog/" title="MyFirstBlog">MyFirstBlog</a><time datetime="2026-10-17T08:21:46.000Z" title="发表于 2026-10-17 16:21:46">2026-10-17</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By REssurr</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.2</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
