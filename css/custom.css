@@ -238,6 +238,37 @@
   }
 }
 
+/* ===== 长文本块（整段提示词这类要整段复制的）：恢复成标准代码框，带复制按钮 =====
+   判据是行号列里存在第 59 个节点（第 30 行，行号 span 与 <br> 交替出现），提示词 100+ 行命中；
+   示意图、日志、引文都很短，仍走上面的例句样式。 */
+#article-container figure.highlight.text:has(.gutter .line:nth-child(59)) {
+  margin: 1.6em 0;
+  padding: 0;
+  border-left: none;
+  border-radius: 8px;
+  background: var(--hl-bg) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .3);
+  overflow: hidden;
+}
+
+#article-container figure.highlight.text:has(.gutter .line:nth-child(59)) .highlight-tools {
+  display: flex;
+}
+
+#article-container figure.highlight.text:has(.gutter .line:nth-child(59)) .gutter {
+  display: none;
+}
+
+#article-container figure.highlight.text:has(.gutter .line:nth-child(59)) .code pre {
+  color: var(--hl-color);
+  font-size: 1em;
+  font-weight: 400;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 10px !important;
+}
+
 /* ===== 页脚渐变：上半段纯背景色，下半段渐入粉色（50% 处开始过渡） ===== */
 #footer {
   background: linear-gradient(
